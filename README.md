@@ -1,38 +1,119 @@
-# Project
+# LLM Correctness Evaluation PoC
 
-## Context
+A FastAPI-based RESTful API service for evaluating LLM model correctness.
 
-This is a Fastapi Restful API Service, which aim at provide a simple LLM Correctness evaluation PoC.
+## Overview
 
-It should only contains Three API:
+This project provides a simple PoC for LLM correctness evaluation with the following features:
+- File upload to S3/MinIO with content-addressable storage (file hash as key)
+- Concurrent evaluation with configurable parallelism
+- Global rate limiting using token bucket algorithm
 
-- Upload_file API: accept csv file object and upload to s3 or local minio with key be seted as file hash, then return a signed url.
-- Evaluation API: accept model_name, concurrent (int) and signed_url, return a s3 signed url which will point to the result csv file, You can then waiting for the result file exists and download it.
+## APIs
 
-We main desing a concurrent limit for each evaluation (which can be set in client request).
+### 1. Upload File
 
-Also a global TokenBucket RateLimit to limit whole Request Rate, general this shuold be done on LLM Gateway or using external Redis service as lock.
-But here we will using a memory thread safe lock to simply our system design.
+**Endpoint:** `POST /upload`
 
-## Usage
+Upload a CSV file to S3/MinIO. The file is stored with its hash as the key.
 
-### run app
+**Request:**
+- `file`: CSV file object
 
+**Response:**
+- `signed_url`: Short-lived URL to access the uploaded file
+
+### 2. Run Evaluation
+
+**Endpoint:** `POST /evaluate`
+
+Trigger an LLM evaluation job.
+
+**Request:**
+```json
+{
+  "model_name": "string",
+  "concurrent": 1,
+  "signed_url": "string"
+}
 ```
-uv run uvicorn playground:app
+
+**Response:**
+- `result_url`: S3 signed URL pointing to the result CSV file
+
+### 3. Get Result
+
+**Endpoint:** `GET /result/{job_id}`
+
+Poll for evaluation results.
+
+**Response:**
+- Job status and result file URL when complete
+
+## Rate Limiting
+
+- **Per-request concurrency**: Configurable via the `concurrent` parameter
+- **Global rate limit**: Token bucket algorithm with in-memory thread-safe implementation
+
+## Development
+
+### Prerequisites
+
+- Python 3.11+
+- [uv](https://github.com/astral-sh/uv) package manager
+
+### Setup
+
+```bash
+uv sync
 ```
 
-### Run Unittest
+### Run Application
 
+```bash
+uv run uvicorn playground:app --reload
 ```
+
+### Run Tests
+
+```bash
 uv run pytest tests
 ```
 
-### using docker-compose
-using docker-compose to run a local minio container to serve as s3 alternative, and the fastapi with swagger as UI to end user.
+### Linting & Type Checking
 
-## Design
+```bash
+uv run ruff check .
+uv run mypy .
+```
 
-- All code shuold be stay into playground python pacakge, all test code should be into tests package.
-- Use uv as package manager, use ruff as format and lint, use mypy as typing checking.
+## Docker
 
+Start local MinIO container and FastAPI service:
+
+```bash
+docker-compose up -d
+```
+
+Access the API documentation at `http://localhost:8000/docs`.
+
+## Project Structure
+
+```
+playground-poc/
+├── playground/          # Main application code
+│   ├── __init__.py
+│   └── ...
+├── tests/               # Test suite
+├── docker-compose.yml
+├── pyproject.toml
+└── README.md
+```
+
+## Tech Stack
+
+- **Framework**: FastAPI
+- **Storage**: MinIO (S3-compatible)
+- **Package Manager**: uv
+- **Linter**: ruff
+- **Type Checker**: mypy
