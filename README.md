@@ -41,15 +41,6 @@ Trigger an LLM evaluation job.
 **Response:**
 - `result_url`: S3 signed URL pointing to the result CSV file
 
-### 3. Get Result
-
-**Endpoint:** `GET /result/{job_id}`
-
-Poll for evaluation results.
-
-**Response:**
-- Job status and result file URL when complete
-
 ## Rate Limiting
 
 - **Per-request concurrency**: Configurable via the `concurrent` parameter
