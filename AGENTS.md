@@ -4,7 +4,7 @@ This document provides guidelines for agentic coding agents operating in this re
 
 ## Project Overview
 
-- **Project Name**: playground-poc
+- **Project Name**: playground
 - **Language**: Python 3.12
 - **Package Manager**: uv
 - **Web Framework**: FastAPI
@@ -90,6 +90,7 @@ docker-compose up -d
 - Use type hints for all function signatures and variables
 - Keep functions small and focused (single responsibility)
 - Write docstrings for all public functions and classes
+- Tests file structure should be same to the source code for easy location the test and target.
 
 ### Formatting
 
