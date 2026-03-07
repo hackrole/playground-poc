@@ -1,4 +1,3 @@
-import hashlib
 import logging
 from typing import Optional
 
@@ -52,10 +51,11 @@ class S3Client:
     def get_file(self, key: str) -> bytes:
         try:
             response = self._client.get_object(Bucket=self._bucket_name, Key=key)
-            return response["Body"].read()
         except ClientError as e:
             logger.error(f"Failed to get file: {key}, error: {e}")
             raise StorageError(f"Could not retrieve file: {key}") from e
+        else:
+            return response["Body"].read()
 
     def generate_signed_url(self, key: str, expiry: Optional[int] = None) -> str:
         try:
@@ -82,10 +82,6 @@ class S3Client:
         except ClientError as e:
             logger.error(f"Failed to generate upload signed URL for: {key}, error: {e}")
             raise StorageError(f"Could not generate upload signed URL: {key}") from e
-
-    @staticmethod
-    def compute_file_hash(content: bytes) -> str:
-        return hashlib.sha256(content).hexdigest()
 
 
 _s3_client: Optional[S3Client] = None

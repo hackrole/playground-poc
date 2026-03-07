@@ -4,6 +4,7 @@ from fastapi import APIRouter, File, HTTPException, UploadFile
 
 from playground.clients.s3_client import StorageError, get_s3_client
 from playground.constants import S3_UPLOAD_FOLDER
+from playground.utils import compute_file_hash
 
 logger = logging.getLogger(__name__)
 
@@ -29,7 +30,7 @@ async def upload_file(file: UploadFile = File(...)) -> dict[str, str]:
         logger.error(f"Failed to read uploaded file: {e}")
         raise HTTPException(status_code=400, detail="Invalid file upload")
 
-    file_hash = get_s3_client().compute_file_hash(content)
+    file_hash = compute_file_hash(content)
     key = f"{S3_UPLOAD_FOLDER}/{file_hash}.csv"
 
     try:

@@ -1,4 +1,5 @@
 import asyncio
+import hashlib
 import logging
 import time
 from threading import Lock
@@ -6,6 +7,11 @@ from threading import Lock
 from playground.config import get_settings
 
 logger = logging.getLogger(__name__)
+
+
+def compute_file_hash(content: bytes) -> str:
+    """Compute SHA256 hash of file content."""
+    return hashlib.sha256(content).hexdigest()
 
 
 class TokenBucketRateLimiter:
