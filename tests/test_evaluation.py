@@ -1,8 +1,5 @@
 import pytest
 from unittest.mock import MagicMock, patch
-from fastapi.testclient import TestClient
-
-from playground.app import app
 
 
 @pytest.fixture
@@ -21,11 +18,6 @@ def mock_rate_limiter():
         limiter.acquire.return_value = True
         mock.return_value = limiter
         yield limiter
-
-
-@pytest.fixture
-def client():
-    return TestClient(app)
 
 
 def test_evaluate_success(client, mock_s3_client, mock_rate_limiter):

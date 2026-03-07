@@ -2,7 +2,9 @@ import logging
 
 from fastapi import APIRouter, File, HTTPException, UploadFile
 
-from playground.clients.s3_client import StorageError, get_s3_client
+from playground.schemas import UploadResult
+from playground.clients import s3_client
+from playground.clients.s3_client import StorageError
 from playground.constants import S3_UPLOAD_FOLDER
 from playground.utils import compute_file_hash
 
@@ -12,7 +14,7 @@ router = APIRouter(prefix="/upload", tags=["upload"])
 
 
 @router.post("")
-async def upload_file(file: UploadFile = File(...)) -> dict[str, str]:
+async def upload_file(file: UploadFile = File(...)) -> UploadResult:
     """Upload a CSV file to S3 storage.
 
     Args:
@@ -34,13 +36,13 @@ async def upload_file(file: UploadFile = File(...)) -> dict[str, str]:
     key = f"{S3_UPLOAD_FOLDER}/{file_hash}.csv"
 
     try:
-        get_s3_client().upload_csv(content, key)
+        s3_client.upload_csv(content, key)
     except StorageError as e:
         logger.error(f"Failed to upload file to S3: {e}")
         raise HTTPException(status_code=500, detail="Failed to upload file")
 
     try:
-        signed_url = get_s3_client().generate_signed_url(key)
+        signed_url = s3_client.generate_signed_url(key)
     except StorageError as e:
         logger.error(f"Failed to generate signed URL: {e}")
         raise HTTPException(status_code=500, detail="Failed to generate signed URL")

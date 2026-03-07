@@ -2,9 +2,15 @@ from enum import Enum
 
 
 class AppEnv(str, Enum):
-    DEVELOPMENT = "development"
-    PRODUCTION = "production"
     TESTING = "testing"
+    LOCAL = "LOCAL"
+
+    DEVELOPMENT = "development"
+    STAGING = "STAGING"
+    PRODUCTION = "production"
+
+    def is_local(self):
+        return self in [AppEnv.TESTING, AppEnv.LOCAL]
 
 
 DEFAULT_SIGNED_URL_EXPIRY = 3600

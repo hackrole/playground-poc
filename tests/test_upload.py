@@ -1,8 +1,5 @@
 import pytest
 from unittest.mock import MagicMock, patch
-from fastapi.testclient import TestClient
-
-from playground.app import app
 
 
 @pytest.fixture
@@ -14,11 +11,6 @@ def mock_s3_client():
         client.generate_signed_url.return_value = "https://example.com/signed-url"
         mock.return_value = client
         yield client
-
-
-@pytest.fixture
-def client():
-    return TestClient(app)
 
 
 def test_health_check(client):

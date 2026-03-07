@@ -7,7 +7,8 @@ import uuid
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
-from playground.clients.s3_client import StorageError, get_s3_client
+from playground.clients.s3_client import s3_client
+from playground.clients.s3_client import StorageError
 from playground.constants import MAX_CONCURRENT, S3_RESULT_FOLDER
 from playground.utils import get_rate_limiter
 
@@ -51,7 +52,7 @@ async def _run_evaluation(
     writer.writeheader()
     writer.writerows(results)
 
-    get_s3_client().upload_csv(output.getvalue().encode(), result_key)
+    s3_client.upload_csv(output.getvalue().encode(), result_key)
 
 
 @router.post("")

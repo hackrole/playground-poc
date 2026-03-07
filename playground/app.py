@@ -2,6 +2,7 @@ import logging
 
 from fastapi import FastAPI
 
+from playground.config import config
 from playground.routers import evaluation_router, upload_router
 
 logging.basicConfig(
@@ -13,6 +14,8 @@ logger = logging.getLogger(__name__)
 
 def create_app() -> FastAPI:
     """Create and configure the FastAPI application."""
+    config.setup()
+
     app = FastAPI(
         title="LLM Correctness Evaluation PoC",
         description="A FastAPI-based RESTful API service for evaluating LLM model correctness.",
