@@ -4,13 +4,14 @@ from unittest.mock import MagicMock, patch
 
 @pytest.fixture
 def mock_s3_client():
-    with patch("playground.routers.upload.get_s3_client") as mock:
-        client = MagicMock()
-        client.compute_file_hash.return_value = "abc123"
-        client.upload_csv.return_value = None
-        client.generate_signed_url.return_value = "https://example.com/signed-url"
-        mock.return_value = client
-        yield client
+    # Patch the object directly
+    with patch("playground.routers.upload.s3_client") as mock:
+        # Configure the mock methods directly on the patched object
+        mock.compute_file_hash.return_value = "abc123"
+        mock.upload_csv.return_value = None
+        mock.generate_signed_url.return_value = "https://example.com/signed-url"
+
+        yield mock
 
 
 def test_health_check(client):
@@ -25,6 +26,7 @@ def test_upload_file_success(client, mock_s3_client):
     )
     assert response.status_code == 200
     assert "signed_url" in response.json()
+
     mock_s3_client.upload_csv.assert_called_once()
 
 
