@@ -35,12 +35,12 @@ uv run pytest tests
 
 Run a single test file:
 ```bash
-uv run pytest tests/test_example.py
+uv run pytest tests/test_upload.py
 ```
 
 Run a single test function:
 ```bash
-uv run pytest tests/test_example.py::test_function_name
+uv run pytest tests/test_upload.py::test_upload_file
 ```
 
 Run tests with verbose output:
@@ -50,13 +50,13 @@ uv run pytest -v tests
 
 Run tests matching a pattern:
 ```bash
-uv run pytest -k "test_pattern"
+uv run pytest -k "test_upload"
 ```
 
-### Linting & Type Checking
-
-Run ruff linter:
+### Linting & Type Checkinginter:
 ```bash
+
+Run ruff l
 uv run ruff check .
 ```
 
@@ -173,6 +173,15 @@ except ClientError as e:
 - Avoid blocking calls in async functions (use `asyncio.to_thread` if needed)
 - Use `asyncio.gather` for concurrent operations
 
+Example:
+```python
+async def batch_evaluate(items: list[EvaluationItem], max_concurrency: int):
+    rate_limiter = asyncio.Semaphore(max_concurrency)
+    tasks = [_run_single_item(item, rate_limiter) for item in items]
+    results = await asyncio.gather(*tasks, return_exceptions=True)
+    return results
+```
+
 ### Testing
 
 - Place tests in the `tests/` directory
@@ -184,15 +193,26 @@ except ClientError as e:
 
 Example:
 ```python
-def test_evaluate_returns_result_url(setup_client):
-    """Test that evaluate endpoint returns a signed result URL."""
-    response = setup_client.post("/evaluate", json={
-        "model_name": "test-model",
-        "concurrent": 1,
-        "signed_url": "https://example.com/file.csv"
-    })
+# tests/conftest.py
+import pytest
+from fastapi.testclient import TestClient
+from playground.app import app
+
+
+@pytest.fixture
+def client():
+    return TestClient(app)
+
+
+# tests/test_upload.py
+def test_upload_file(client):
+    """Test that upload endpoint returns a signed URL."""
+    response = client.post(
+        "/upload",
+        files={"file": ("test.csv", "id,query,ground_truth\n1,test,test", "text/csv")}
+    )
     assert response.status_code == 200
-    assert "result_url" in response.json()
+    assert "signed_url" in response.json()
 ```
 
 ### Logging
@@ -246,17 +266,32 @@ def upload_file(file: UploadFile, bucket: str) -> str:
 
 ```
 playground-poc/
-├── playground/           # Main application code
-│   ├── __init__.py
-│   ├── app.py           # FastAPI application
-│   ├── config.py        # Configuration
-│   ├── constants.py     # Constants
-│   ├── utils.py         # Utility functions
-│   └── clients/         # Client modules
-├── tests/               # Test suite
-├── docs/                # Documentation
-├── pyproject.toml       # Project configuration
-└── README.md            # Project README
+├── playground/              # Main application code
+│   ├── __init__.py         # Package exports
+│   ├── app.py              # FastAPI application factory
+│   ├── config.py           # Configuration management
+│   ├── constants.py        # Constants and enumerations
+│   ├── prompts.py          # LLM prompts
+│   ├── schemas.py          # Data schemas
+│   ├── tasks.py            # Background tasks
+│   ├── utils.py            # Utility functions and rate limiter
+│   ├── clients/
+│   │   └── s3_client.py    # S3/MinIO client
+│   ├── routers/
+│   │   ├── __init__.py     # Router exports
+│   │   ├── evaluation.py   # Evaluation endpoint
+│   │   └── upload.py       # Upload endpoint
+│   └── service/
+│       ├── __init__.py
+│       └── evaluation.py   # Evaluation business logic
+├── tests/                   # Test suite
+│   ├── conftest.py         # Pytest fixtures
+│   ├── test_evaluation.py
+│   └── test_upload.py
+├── docs/                    # Documentation
+├── docker-compose.yml       # Docker compose configuration
+├── pyproject.toml           # Project configuration
+└── README.md                # Project README
 ```
 
 ## Additional Resources
