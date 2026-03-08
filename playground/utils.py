@@ -22,7 +22,7 @@ class ModelName(str, Enum):
     GPT_4O_MINI = "gpt-4o-mini"
     CLAUDE_3_5_SONNET = "claude-3-5-sonnet-20241022"
     CLAUDE_3_HAIKU = "claude-3-haiku-20240307"
-    OLLAMA_LLAMA3 = "llama3"
+    OLLAMA_LLAMA3 = "llama3.2:latest"
     OLLAMA_MISTRAL = "mistral"
 
 

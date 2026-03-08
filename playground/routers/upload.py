@@ -3,8 +3,7 @@ import logging
 from fastapi import APIRouter, File, HTTPException, UploadFile
 
 from playground.schemas import UploadResult
-from playground.clients import s3_client
-from playground.clients.s3_client import StorageError
+from playground.clients.s3_client import StorageError, s3_client
 from playground.constants import S3_UPLOAD_FOLDER
 from playground.utils import compute_file_hash
 

@@ -24,13 +24,21 @@ class S3Client:
         config = self.config
 
         client_config = Config(region_name=config.s3_region_name)
-        return boto3.client(
+        client = boto3.client(
             "s3",
             endpoint_url=config.s3_endpoint_url,
             aws_access_key_id=config.s3_access_key,
             aws_secret_access_key=config.s3_secret_key,
             config=client_config,
         )
+        return client
+
+    def ensure_bucket_exists(self):
+        try:
+            self.client.head_bucket(Bucket=config.s3_bucket_name)
+        except Exception:
+            print(f"Bucket {config.s3_bucket_name} not found. Creating it...")
+            self.client.create_bucket(Bucket=config.s3_bucket_name)
 
     @cached_property
     def bucket_name(self) -> str:

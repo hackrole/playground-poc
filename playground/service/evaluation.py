@@ -75,7 +75,7 @@ async def _run_single_item(
 async def batch_evaluate(
     model_name: ModelName,
     items: list[EvaluationItem],
-    max_concurrency: int = 5,
+    max_concurrency: int,
 ) -> list[EvaluationResult]:
     """Run batch evaluation with concurrency and rate limiting.
 

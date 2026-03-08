@@ -3,6 +3,7 @@ import logging
 from fastapi import FastAPI
 
 from playground.config import config
+from playground.clients.s3_client import s3_client
 from playground.routers import evaluation_router, upload_router
 
 logging.basicConfig(
@@ -24,6 +25,8 @@ def create_app() -> FastAPI:
 
     app.include_router(upload_router)
     app.include_router(evaluation_router)
+
+    s3_client.ensure_bucket_exists()
 
     @app.get("/health")
     async def health_check() -> dict[str, str]:

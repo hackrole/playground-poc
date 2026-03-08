@@ -1,0 +1,8 @@
+id,query,ground_truth
+1,"What is the capital of France?","Paris"
+2,"Calculate the result of 15 multiplied by 12.","180"
+3,"Who wrote the play 'Romeo and Juliet'?","William Shakespeare"
+4,"Extract the date from this sentence: 'The meeting is scheduled for October 24th, 2025.'","October 24th, 2025"
+5,"Is 17 a prime number? Answer Yes or No.","Yes"
+6,"What is the chemical symbol for Gold?","Au"
+7,"Translate 'Hello' to Spanish.","Hola"
